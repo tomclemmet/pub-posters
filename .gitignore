@@ -1,3 +1,4 @@
 output/
 covers/
 __pycache__/
+*.docx
