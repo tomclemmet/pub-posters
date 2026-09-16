@@ -1,0 +1,20 @@
+# Rename PubMed's journal name to whatever you want shown on the poster and
+# used for the cover-image lookup. One rule per line, in the form:
+#   PubMed name -> Display name
+#
+# Matching is case-insensitive and ignores extra whitespace. Blank lines and
+# lines starting with '#' are ignored. Anything not listed here is just
+# title-cased automatically, so you only need an entry when PubMed's name
+# needs shortening/fixing beyond that (e.g. a long subtitle, or an all-caps
+# acronym name like "PLOS ONE" that title-casing would otherwise mangle).
+#
+# Example:
+# Value in health : the journal of the International Society for Pharmacoeconomics and Outcomes Research -> Value in Health
+
+Value in health : the journal of the International Society for Pharmacoeconomics and Outcomes Research -> Value in Health
+Alzheimer's & Dementia (New York, N. Y.) -> Alzheimer's & Dementia
+Alzheimer's & Dementia : The Journal of the Alzheimer's Association -> Alzheimer's & Dementia
+European Journal of Cancer (Oxford, England : 1990) -> European Journal of Cancer
+Cancer Epidemiology, Biomarkers & Prevention : A Publication of the American Association for Cancer Research, Cosponsored by the American Society of Preventive Oncology -> Cancer Epidemiology, Biomarkers & Prevention
+
+

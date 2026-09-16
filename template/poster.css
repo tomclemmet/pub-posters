@@ -1,0 +1,126 @@
+@page {
+  size: A4 landscape;
+  margin: 0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Times New Roman", Times, serif;
+  color: #1a1a1a;
+  background: #fff;
+}
+
+.poster {
+  width: 297mm;
+  height: 210mm;
+  position: relative;
+  display: flex;
+  overflow: hidden;
+  padding-left: 10mm;
+}
+
+.accent-bar {
+  flex: 0 0 auto;
+  width: 9mm;
+  height: 100%;
+  background: #660099;
+}
+
+.accent-gap {
+  flex: 0 0 auto;
+  width: 5mm;
+  height: 100%;
+  background: #fff;
+}
+
+.content {
+  flex: 1 1 auto;
+  padding: 12mm 16mm 4mm 12mm;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.poster-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10mm;
+  margin-bottom: 4mm;
+}
+
+.header-text {
+  min-width: 0;
+}
+
+.journal {
+  font-size: 30pt;
+  font-weight: 700;
+  margin: 0 0 4mm 0;
+  line-height: 1.1;
+}
+
+.paper-title {
+  font-size: 18pt;
+  font-weight: 400;
+  margin: 0 0 5mm 0;
+  line-height: 1.25;
+  max-width: 190mm;
+}
+
+.authors {
+  font-size: 18pt;
+  margin: 0;
+  color: #1a1a1a;
+}
+
+.header-images {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 4mm;
+  /* To resize the cover, change only --cover-width - the height follows
+     automatically from --cover-aspect-ratio (width / height of the cover
+     images you're using), so it can never end up stretched or squashed. */
+  --cover-width: 38mm;
+  --cover-aspect-ratio: 42 / 58;
+}
+
+.header-images .qr {
+  width: 34mm;
+  height: 34mm;
+  object-fit: contain;
+}
+
+.header-images .cover {
+  width: var(--cover-width);
+  aspect-ratio: var(--cover-aspect-ratio);
+  object-fit: cover;
+  box-shadow: 0 0 0 1px #ccc;
+}
+
+.abstract {
+  font-size: 15pt;
+  line-height: 1.25;
+  text-align: left;
+  margin: 0;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.citation {
+  margin-top: 2mm;
+  font-size: 10.5pt;
+  font-weight: 700;
+  font-style: italic;
+  color: #1a1a1a;
+}

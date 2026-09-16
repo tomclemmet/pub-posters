@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>{{ journal }} - {{ title }}</title>
+<style>
+{{ css }}
+</style>
+</head>
+<body>
+<div class="poster">
+  <div class="accent-bar"></div>
+  <div class="accent-gap"></div>
+  <div class="content">
+    <header class="poster-header">
+      <div class="header-text">
+        <h1 class="journal">{{ journal }}</h1>
+        <h2 class="paper-title">{{ title }}</h2>
+        <p class="authors">{{ authors }}</p>
+      </div>
+      <div class="header-images">
+        <img class="qr" src="data:image/png;base64,{{ qr_base64 }}" alt="QR code linking to DOI">
+        <img class="cover" data-cover-candidates='{{ cover_candidates }}' alt="{{ journal }} cover">
+      </div>
+    </header>
+    <p class="abstract">{{ abstract }}</p>
+    <footer class="citation">{{ citation }}</footer>
+  </div>
+</div>
+<script>
+(function () {
+  var MAX_PT = 15, MIN_PT = 8, STEP = 0.5;
+  function fitAbstract() {
+    var el = document.querySelector(".abstract");
+    if (!el) return;
+    var size = MAX_PT;
+    el.style.fontSize = size + "pt";
+    while (el.scrollHeight > el.clientHeight && size > MIN_PT) {
+      size -= STEP;
+      el.style.fontSize = size + "pt";
+    }
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", fitAbstract);
+  } else {
+    fitAbstract();
+  }
+  window.addEventListener("load", fitAbstract);
+  window.addEventListener("resize", fitAbstract);
+  window.addEventListener("beforeprint", fitAbstract);
+})();
+
+(function () {
+  // Tries each possible cover-image extension in turn, so dropping the
+  // right file into covers/ later just works on the next reload - no
+  // rebuild needed. If none load (including when there are no candidates
+  // at all - e.g. the journal name wasn't found either), it's just left as
+  // a broken image; add a src by hand to fix it up manually.
+  function initCovers() {
+    document.querySelectorAll(".cover[data-cover-candidates]").forEach(function (img) {
+      var candidates;
+      try {
+        candidates = JSON.parse(img.getAttribute("data-cover-candidates"));
+      } catch (e) {
+        candidates = [];
+      }
+      var i = 0;
+      function tryNext() {
+        if (i < candidates.length) img.src = candidates[i++];
+      }
+      img.addEventListener("error", tryNext);
+      tryNext();
+    });
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initCovers);
+  } else {
+    initCovers();
+  }
+})();
+</script>
+</body>
+</html>

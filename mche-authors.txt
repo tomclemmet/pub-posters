@@ -1,0 +1,41 @@
+# One "F Lastname" entry per line: first initial, then last name.
+# Any author on a poster whose PubMed first initial + last name matches a
+# line here (case-insensitive) has their whole name bolded - a missing vs.
+# present middle name never affects the match, since only the first initial
+# is used. Blank lines and lines starting with '#' are ignored.
+#
+# Example:
+# K Payne
+
+T Clemmet
+K Payne
+R Elliott
+G Rogers
+S Wright
+A Salisbury
+J Hilton
+L Lenzi
+A Thompson
+G Dalal
+S Gavan
+M Hoang
+S Yates
+A Copson
+M Eden
+T Allen
+S Amritlal
+A Mahboub-Ahari
+N Carter
+R Hainsworth
+S Chang
+C Grigoroglou
+S Kausar
+A Momoh
+M Rodrigues
+G Shields
+F Su
+M Wu
+W Xu
+B Yang
+T Khan-Israeel
+D Zheng
