@@ -62,6 +62,9 @@ def normalize_doi_arg(arg: str) -> str:
 
 
 COVER_EXTENSIONS = (".jpg", ".jpeg", ".png", ".webp")
+# How many levels of output/<subfolder>/ nesting cover-image paths tolerate;
+# see the comment above cover_candidates in build_from_doi.
+COVER_PATH_MAX_DEPTH = 3
 
 
 def find_cover_image(journal: str):
@@ -149,9 +152,35 @@ def _elem_text(el) -> str:
 def _extract_fields(article, doi: str, journal_overrides: dict) -> dict:
     """Build the lookup-result dict (see pubmed_lookup_batch) from a single
     <Article> element and the DOI it belongs to."""
-    abstract = " ".join(
-        _elem_text(el) for el in article.findall(".//AbstractText") if _elem_text(el)
-    )
+    # A "structured abstract" (Objectives/Methods/Results/Conclusions, etc.)
+    # comes back from PubMed as several <AbstractText> elements, each with
+    # its heading only in a Label attribute - not in the text itself - so
+    # joining just the text (as before) silently drops the headings and
+    # runs every section together. Re-attach each heading inline (title
+    # case, colon, no line break) wherever PubMed provided one; a plain
+    # (unlabelled) abstract is unaffected since there's nothing to prefix.
+    # "UNLABELLED" is PubMed's own sentinel for "no real heading" (used when
+    # the source abstract already writes its headings inline, e.g. as bold
+    # text within the one AbstractText) - treat it the same as no label at
+    # all rather than printing the literal word "Unlabelled:".
+    #
+    # A "HIGHLIGHTS" section is a separate bullet-point summary some
+    # journals tack on after the real abstract, and "FINANCIAL DISCLOSURE(S)"
+    # is a boilerplate funding/COI note - neither is abstract content, so
+    # both are dropped entirely rather than rendered as a labelled section.
+    DROPPED_ABSTRACT_LABELS = {"HIGHLIGHTS", "FINANCIAL DISCLOSURE", "FINANCIAL DISCLOSURES"}
+    abstract_parts = []
+    for el in article.findall(".//AbstractText"):
+        if (el.get("Label") or "").strip().upper() in DROPPED_ABSTRACT_LABELS:
+            continue
+        text = _elem_text(el)
+        if not text:
+            continue
+        label = el.get("Label")
+        if label and label.strip().upper() == "UNLABELLED":
+            label = None
+        abstract_parts.append(f"{label.title()}: {text}" if label else text)
+    abstract = " ".join(abstract_parts)
 
     article_title = _elem_text(article.find(".//ArticleTitle"))
     if article_title:
@@ -328,7 +357,7 @@ def render_authors(authors_list, bold_authors: set) -> str:
 
 def build_from_doi(
     doi: str, env: Environment, css: str, bold_authors: set,
-    journal_overrides: dict = None, looked_up: dict = None,
+    journal_overrides: dict = None, looked_up: dict = None, out_dir: Path = OUTPUT_DIR,
 ):
     print(f"* {doi}")
     if looked_up is None:
@@ -336,7 +365,7 @@ def build_from_doi(
     if looked_up:
         print("  [-] found PubMed match")
     out_stem = make_doi_slug(doi, looked_up)
-    edit_hint = f"output/{out_stem}.html"
+    edit_hint = f"{out_dir.relative_to(ROOT).as_posix()}/{out_stem}.html"
 
     journal_raw = looked_up.get("journal", "")  # already normalized, see normalize_journal_name
     title_raw = looked_up.get("title", "")
@@ -357,11 +386,21 @@ def build_from_doi(
     # covers/ later works on the next reload, no rebuild needed. If the
     # journal name itself wasn't found there's no slug to guess from, so
     # this is left for manual editing (see README).
+    #
+    # Candidates are generated for a few "../" depths, not just one, because
+    # a poster built straight into output/ may later be moved into an
+    # output/<subfolder>/ (e.g. to keep it out of a combine_pdfs.py batch) -
+    # the shallowest depth is tried first so the common case (poster still
+    # directly in output/) needs no fallback at all.
     cover_path = None if journal_missing else find_cover_image(journal_raw)
     cover_slug = slugify(journal_raw) if not journal_missing else ""
     cover_candidates = (
         [] if journal_missing
-        else [f"../covers/{cover_slug}{ext}" for ext in COVER_EXTENSIONS]
+        else [
+            f"{'../' * (depth + 1)}covers/{cover_slug}{ext}"
+            for depth in range(COVER_PATH_MAX_DEPTH)
+            for ext in COVER_EXTENSIONS
+        ]
     )
 
     # Anything PubMed didn't find is simply left blank - no bracketed
@@ -385,8 +424,8 @@ def build_from_doi(
         css=css,
     )
 
-    OUTPUT_DIR.mkdir(exist_ok=True)
-    out_path = OUTPUT_DIR / f"{out_stem}.html"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    out_path = out_dir / f"{out_stem}.html"
     out_path.write_text(page_html, encoding="utf-8")
     print(f"  [ok] -> {out_path.relative_to(ROOT)}")
     if journal_missing:
@@ -426,7 +465,14 @@ def main():
         "-f", "--file", metavar="PATH",
         help="Text file with one DOI per line (blank lines and '#' comments ignored) to build in bulk",
     )
+    parser.add_argument(
+        "--subdir", metavar="SUBFOLDER",
+        help="Write posters into output/SUBFOLDER/ instead of output/ directly "
+             "(created if it doesn't exist yet)",
+    )
     args = parser.parse_args()
+
+    out_dir = OUTPUT_DIR / args.subdir if args.subdir else OUTPUT_DIR
 
     env = Environment(loader=FileSystemLoader(str(TEMPLATE_DIR)))
     css = (TEMPLATE_DIR / "poster.css").read_text(encoding="utf-8")
@@ -447,12 +493,12 @@ def main():
         print(f"Building {len(dois)} poster(s) from {path.name}...")
         looked_up_map = pubmed_lookup_batch(dois, journal_overrides)
         for doi in dois:
-            build_from_doi(doi, env, css, bold_authors, journal_overrides, looked_up_map.get(doi, {}))
+            build_from_doi(doi, env, css, bold_authors, journal_overrides, looked_up_map.get(doi, {}), out_dir)
     elif args.dois:
         dois = [normalize_doi_arg(arg) for arg in args.dois]
         looked_up_map = pubmed_lookup_batch(dois, journal_overrides)
         for doi in dois:
-            build_from_doi(doi, env, css, bold_authors, journal_overrides, looked_up_map.get(doi, {}))
+            build_from_doi(doi, env, css, bold_authors, journal_overrides, looked_up_map.get(doi, {}), out_dir)
     else:
         print("No DOI given on the command line - entering interactive mode.")
         while True:
@@ -462,7 +508,7 @@ def main():
                 break
             if not raw:
                 break
-            build_from_doi(normalize_doi_arg(raw), env, css, bold_authors, journal_overrides)
+            build_from_doi(normalize_doi_arg(raw), env, css, bold_authors, journal_overrides, out_dir=out_dir)
 
 
 if __name__ == "__main__":
