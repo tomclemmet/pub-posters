@@ -53,7 +53,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 10mm;
+  gap: 0mm;
   margin-bottom: 4mm;
 }
 
@@ -62,22 +62,25 @@ body {
 }
 
 .journal {
-  font-size: 30pt;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 27pt;
   font-weight: 700;
   margin: 0 0 4mm 0;
   line-height: 1.1;
 }
 
 .paper-title {
-  font-size: 18pt;
-  font-weight: 400;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 19.5pt;
+  font-weight: 700;
   margin: 0 0 5mm 0;
   line-height: 1.25;
   max-width: 190mm;
 }
 
 .authors {
-  font-size: 18pt;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 16pt;
   margin: 0;
   color: #1a1a1a;
 }
@@ -90,13 +93,13 @@ body {
   /* To resize the cover, change only --cover-width - the height follows
      automatically from --cover-aspect-ratio (width / height of the cover
      images you're using), so it can never end up stretched or squashed. */
-  --cover-width: 38mm;
+  --cover-width: 46mm;
   --cover-aspect-ratio: 42 / 58;
 }
 
 .header-images .qr {
-  width: 34mm;
-  height: 34mm;
+  width: 32mm;
+  height: 32mm;
   object-fit: contain;
 }
 
