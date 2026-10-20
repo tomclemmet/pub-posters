@@ -16,5 +16,6 @@ Alzheimer's & Dementia (New York, N. Y.) -> Alzheimer's & Dementia
 Alzheimer's & Dementia : The Journal of the Alzheimer's Association -> Alzheimer's & Dementia
 European Journal of Cancer (Oxford, England : 1990) -> European Journal of Cancer
 Cancer Epidemiology, Biomarkers & Prevention : A Publication of the American Association for Cancer Research, Cosponsored by the American Society of Preventive Oncology -> Cancer Epidemiology, Biomarkers & Prevention
-
-
+The British Journal of General Practice : The Journal of the Royal College of General Practitioners -> British Journal of General Practice
+European Journal of Vascular and Endovascular Surgery : The Official Journal of the European Society for Vascular Surgery -> European Journal of Vascular and Endovascular Surgery
+Social Science & Medicine (1982) -> Social Science and Medicine
